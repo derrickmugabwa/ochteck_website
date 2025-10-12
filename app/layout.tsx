@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { QueryProvider } from "@/lib/providers/query-provider";
+import { SmoothScrollProvider } from "@/lib/providers/smooth-scroll-provider";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -25,16 +27,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="light" suppressHydrationWarning>
       <body className={`${geistSans.className} antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem={false}
+            storageKey="site-theme"
+            forcedTheme="light"
+            disableTransitionOnChange
+          >
+            <SmoothScrollProvider>
+              {children}
+            </SmoothScrollProvider>
+          </ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   );
