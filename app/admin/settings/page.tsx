@@ -4,71 +4,86 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Save } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Save, Upload, Loader2, X } from "lucide-react";
+import { useState } from "react";
 
 export default function SettingsPage() {
   const queryClient = useQueryClient();
   const supabase = createClient();
 
   const [settings, setSettings] = useState({
-    site_title: "",
-    site_description: "",
-    contact_email: "",
-    social_twitter: "",
-    social_github: "",
-    social_linkedin: "",
+    site_name: "",
+    favicon_url: "",
+    logo_url: "",
   });
+  const [isUploadingFavicon, setIsUploadingFavicon] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
   const { data: siteSettings, isLoading } = useQuery({
     queryKey: ["site-settings"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("site_settings")
-        .select("*");
-      if (error) throw error;
+        .select("*")
+        .eq("is_active", true)
+        .single();
+      if (error && error.code !== 'PGRST116') throw error;
+      if (data) {
+        setSettings({
+          site_name: data.site_name || "",
+          favicon_url: data.favicon_url || "",
+          logo_url: data.logo_url || "",
+        });
+      }
       return data;
     },
   });
 
-  useEffect(() => {
-    if (siteSettings) {
-      const settingsMap: Record<string, any> = {};
-      siteSettings.forEach((setting: any) => {
-        settingsMap[setting.key] = setting.value;
-      });
+  const handleImageUpload = async (file: File, type: 'favicon' | 'logo') => {
+    try {
+      if (type === 'favicon') setIsUploadingFavicon(true);
+      else setIsUploadingLogo(true);
 
-      setSettings({
-        site_title: settingsMap.site_title || "",
-        site_description: settingsMap.site_description || "",
-        contact_email: settingsMap.contact_email || "",
-        social_twitter: settingsMap.social_links?.twitter || "",
-        social_github: settingsMap.social_links?.github || "",
-        social_linkedin: settingsMap.social_links?.linkedin || "",
-      });
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${type}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('media')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('media')
+        .getPublicUrl(filePath);
+
+      if (type === 'favicon') {
+        setSettings({ ...settings, favicon_url: publicUrl });
+      } else {
+        setSettings({ ...settings, logo_url: publicUrl });
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('Failed to upload image');
+    } finally {
+      if (type === 'favicon') setIsUploadingFavicon(false);
+      else setIsUploadingLogo(false);
     }
-  }, [siteSettings]);
+  };
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const updates = [
-        { key: "site_title", value: settings.site_title },
-        { key: "site_description", value: settings.site_description },
-        { key: "contact_email", value: settings.contact_email },
-        {
-          key: "social_links",
-          value: {
-            twitter: settings.social_twitter,
-            github: settings.social_github,
-            linkedin: settings.social_linkedin,
-          },
-        },
-      ];
-
-      for (const update of updates) {
+      if (siteSettings?.id) {
         const { error } = await supabase
           .from("site_settings")
-          .upsert({ key: update.key, value: update.value }, { onConflict: "key" });
+          .update(settings)
+          .eq("id", siteSettings.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("site_settings")
+          .insert([{ ...settings, is_active: true }]);
         if (error) throw error;
       }
     },
@@ -93,89 +108,112 @@ export default function SettingsPage() {
         <div className="grid gap-6 max-w-3xl">
           <Card>
             <CardHeader>
-              <CardTitle>General Settings</CardTitle>
+              <CardTitle>Site Identity</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Site Title</label>
+                <label className="text-sm font-medium">Site Name</label>
                 <input
                   type="text"
-                  value={settings.site_title}
+                  value={settings.site_name}
                   onChange={(e) =>
-                    setSettings({ ...settings, site_title: e.target.value })
+                    setSettings({ ...settings, site_name: e.target.value })
                   }
                   className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Ochteck Agency Limited"
                 />
               </div>
 
+              {/* Favicon Upload */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Site Description</label>
-                <textarea
-                  value={settings.site_description}
-                  onChange={(e) =>
-                    setSettings({ ...settings, site_description: e.target.value })
-                  }
-                  rows={3}
-                  className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                />
+                <label className="text-sm font-medium">Favicon</label>
+                {settings.favicon_url && (
+                  <div className="relative w-16 h-16 border rounded-lg p-2 bg-muted/30">
+                    <img
+                      src={settings.favicon_url}
+                      alt="Favicon"
+                      className="w-full h-full object-contain"
+                    />
+                    <button
+                      onClick={() => setSettings({ ...settings, favicon_url: "" })}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive/90"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+                <label className="block">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleImageUpload(file, 'favicon');
+                    }}
+                    disabled={isUploadingFavicon}
+                    className="hidden"
+                  />
+                  <div className="w-full border-2 border-dashed rounded-lg px-4 py-3 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
+                    {isUploadingFavicon ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="text-sm">Uploading...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center gap-2">
+                        <Upload className="w-4 h-4" />
+                        <span className="text-sm">Upload Favicon (16x16 or 32x32)</span>
+                      </div>
+                    )}
+                  </div>
+                </label>
+                <p className="text-xs text-muted-foreground">Recommended: .ico, .png (16x16 or 32x32 pixels)</p>
               </div>
 
+              {/* Logo Upload */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Contact Email</label>
-                <input
-                  type="email"
-                  value={settings.contact_email}
-                  onChange={(e) =>
-                    setSettings({ ...settings, contact_email: e.target.value })
-                  }
-                  className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Social Links</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Twitter URL</label>
-                <input
-                  type="url"
-                  value={settings.social_twitter}
-                  onChange={(e) =>
-                    setSettings({ ...settings, social_twitter: e.target.value })
-                  }
-                  placeholder="https://twitter.com/yourusername"
-                  className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">GitHub URL</label>
-                <input
-                  type="url"
-                  value={settings.social_github}
-                  onChange={(e) =>
-                    setSettings({ ...settings, social_github: e.target.value })
-                  }
-                  placeholder="https://github.com/yourusername"
-                  className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">LinkedIn URL</label>
-                <input
-                  type="url"
-                  value={settings.social_linkedin}
-                  onChange={(e) =>
-                    setSettings({ ...settings, social_linkedin: e.target.value })
-                  }
-                  placeholder="https://linkedin.com/in/yourusername"
-                  className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-                />
+                <label className="text-sm font-medium">Site Logo</label>
+                {settings.logo_url && (
+                  <div className="relative w-32 h-32 border rounded-lg p-4 bg-muted/30">
+                    <img
+                      src={settings.logo_url}
+                      alt="Logo"
+                      className="w-full h-full object-contain"
+                    />
+                    <button
+                      onClick={() => setSettings({ ...settings, logo_url: "" })}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive/90"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+                <label className="block">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleImageUpload(file, 'logo');
+                    }}
+                    disabled={isUploadingLogo}
+                    className="hidden"
+                  />
+                  <div className="w-full border-2 border-dashed rounded-lg px-4 py-3 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
+                    {isUploadingLogo ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="text-sm">Uploading...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center gap-2">
+                        <Upload className="w-4 h-4" />
+                        <span className="text-sm">Upload Logo</span>
+                      </div>
+                    )}
+                  </div>
+                </label>
+                <p className="text-xs text-muted-foreground">Recommended: .png or .svg with transparent background</p>
               </div>
             </CardContent>
           </Card>

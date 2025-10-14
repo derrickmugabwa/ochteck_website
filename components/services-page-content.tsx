@@ -20,18 +20,36 @@ interface Service {
   order_index: number;
 }
 
+interface ProcessStep {
+  id: string;
+  step_number: string;
+  title: string;
+  description: string;
+  order_index: number;
+  visible: boolean;
+}
+
+interface ServicesCTA {
+  title: string;
+  description: string;
+  button_text: string;
+  button_link: string;
+}
+
 interface ServicesPageContentProps {
   services: Service[];
+  processSteps: ProcessStep[];
+  cta: ServicesCTA | null;
 }
 
 // Helper to get icon component from string name
 const getIcon = (iconName?: string): LucideIcon => {
   if (!iconName) return Briefcase;
-  const IconComponent = (Icons as any)[iconName];
+  const IconComponent = (Icons as unknown as Record<string, LucideIcon>)[iconName];
   return IconComponent || Briefcase;
 };
 
-export function ServicesPageContent({ services }: ServicesPageContentProps) {
+export function ServicesPageContent({ services, processSteps, cta }: ServicesPageContentProps) {
   return (
     <>
       {/* Hero Section */}
@@ -96,9 +114,6 @@ export function ServicesPageContent({ services }: ServicesPageContentProps) {
                         </ul>
                       )}
                     </div>
-
-                    {/* Decorative gradient */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                 </AnimateIn>
               );
@@ -107,56 +122,39 @@ export function ServicesPageContent({ services }: ServicesPageContentProps) {
         </Section>
 
         {/* Process Section */}
-        <Section title="Our Process" intro="How we bring your vision to life">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                step: "01",
-                title: "Discovery",
-                desc: "We learn about your goals, audience, and requirements.",
-              },
-              {
-                step: "02",
-                title: "Design",
-                desc: "Create wireframes and visual designs that align with your brand.",
-              },
-              {
-                step: "03",
-                title: "Development",
-                desc: "Build your site with modern tech and best practices.",
-              },
-              {
-                step: "04",
-                title: "Launch",
-                desc: "Deploy, test, and optimize for peak performance.",
-              },
-            ].map((phase, i) => (
-              <AnimateIn key={phase.step} delay={i * 0.1}>
-                <div className="relative rounded-xl border bg-card p-6 hover:shadow-lg transition-all">
-                  <div className="text-5xl font-bold text-primary/10 mb-2">{phase.step}</div>
-                  <h3 className="font-semibold text-lg mb-2">{phase.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{phase.desc}</p>
-                </div>
-              </AnimateIn>
-            ))}
-          </div>
-        </Section>
+        {processSteps && processSteps.length > 0 && (
+          <Section title="Our Process" intro="How we bring your vision to life">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {processSteps.map((step, i) => (
+                <AnimateIn key={step.id} delay={i * 0.1}>
+                  <div className="relative rounded-xl border bg-card p-6 hover:shadow-lg transition-all">
+                    <div className="text-5xl font-bold text-primary/10 mb-2">{step.step_number}</div>
+                    <h3 className="font-semibold text-lg mb-2">{step.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
+                  </div>
+                </AnimateIn>
+              ))}
+            </div>
+          </Section>
+        )}
 
         {/* CTA */}
-        <AnimateIn>
-          <div className="rounded-2xl border bg-gradient-to-br from-primary/5 via-purple-500/5 to-primary/5 p-8 md:p-12 text-center">
-            <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
-            <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-              Let's discuss your project and create something amazing together.
-            </p>
-            <a
-              href="/contact"
-              className="inline-flex items-center justify-center rounded-lg bg-primary px-8 py-3 text-primary-foreground font-medium hover:opacity-90 transition-all hover:scale-105"
-            >
-              Contact Us Today
-            </a>
-          </div>
-        </AnimateIn>
+        {cta && (
+          <AnimateIn>
+            <div className="rounded-2xl border bg-gradient-to-br from-primary/5 via-purple-500/5 to-primary/5 p-8 md:p-12 text-center">
+              <h2 className="text-3xl font-bold mb-4">{cta.title}</h2>
+              <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+                {cta.description}
+              </p>
+              <a
+                href={cta.button_link}
+                className="inline-flex items-center justify-center rounded-lg bg-primary px-8 py-3 text-primary-foreground font-medium hover:opacity-90 transition-all hover:scale-105"
+              >
+                {cta.button_text}
+              </a>
+            </div>
+          </AnimateIn>
+        )}
       </div>
     </>
   );

@@ -112,7 +112,7 @@ export default function TestimonialsPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground italic line-clamp-3">
-                  "{testimonial.content}"
+                  &ldquo;{testimonial.content}&rdquo;
                 </p>
                 <div className="flex gap-2">
                   <Button

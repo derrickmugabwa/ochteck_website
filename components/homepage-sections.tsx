@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { AnimateIn } from "@/components/animate-in";
-import { Sparkles, Zap, Shield, Rocket, Briefcase, Code2, Palette, Database, ArrowRight, LucideIcon, MessageSquare } from "lucide-react";
+import { Sparkles, Zap, Shield, Rocket, Briefcase, ArrowRight, LucideIcon, MessageSquare } from "lucide-react";
 import * as Icons from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
@@ -48,7 +48,7 @@ interface HomepageSectionsProps {
 
 // Helper to get icon component from string name
 const getIcon = (iconName: string): LucideIcon => {
-  const IconComponent = (Icons as any)[iconName];
+  const IconComponent = (Icons as unknown as Record<string, LucideIcon>)[iconName];
   return IconComponent || Sparkles;
 };
 
@@ -67,8 +67,19 @@ const serviceGradients = [
   "from-green-600/20 to-emerald-600/20",
 ];
 
+interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  company: string;
+  content: string;
+  avatar_url?: string;
+  author: string;
+  visible: boolean;
+}
+
 export function HomepageSections({ features, services, cta }: HomepageSectionsProps) {
-  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
 
   useEffect(() => {
     async function fetchTestimonials() {
@@ -192,9 +203,6 @@ export function HomepageSections({ features, services, cta }: HomepageSectionsPr
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                       </div>
                     </div>
-
-                    {/* Decorative gradient */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                 </AnimateIn>
               );
@@ -246,7 +254,7 @@ export function HomepageSections({ features, services, cta }: HomepageSectionsPr
               <AnimateIn key={testimonial.id} delay={i * 0.08}>
                 <blockquote className="group relative rounded-2xl border bg-card p-8 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 h-full flex flex-col">
                   {/* Quote icon */}
-                  <div className="mb-4 text-primary/20 text-6xl font-serif leading-none">"</div>
+                  <div className="mb-4 text-primary/20 text-6xl font-serif leading-none">&ldquo;</div>
                   
                   {/* Rating stars */}
                   <div className="flex gap-1 mb-4">

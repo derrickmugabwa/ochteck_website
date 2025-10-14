@@ -247,7 +247,7 @@ export function HomepageEditor({ initialFeatures, initialServices, initialCta }:
         <Card>
           <CardHeader>
             <CardTitle>Features Section</CardTitle>
-            <CardDescription>Manage the "Why Choose Us" section</CardDescription>
+            <CardDescription>Manage the &ldquo;Why Choose Us&rdquo; section</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">

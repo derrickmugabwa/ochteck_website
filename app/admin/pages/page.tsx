@@ -11,7 +11,7 @@ interface Page {
   id: string;
   slug: string;
   title: string;
-  content: any;
+  content: unknown;
   status: "draft" | "published";
   updated_at: string;
 }

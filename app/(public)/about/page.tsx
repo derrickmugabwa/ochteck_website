@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AboutPageContent } from "@/components/about-page-content";
 
 export const metadata = {
-  title: "About | Next.js Supabase Starter",
+  title: "About | Ochteck Agency Limited",
   description: "Learn more about our mission, values, and team.",
 };
 

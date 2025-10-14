@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Upload, Image as ImageIcon, Trash2 } from "lucide-react";
 
 export default function MediaPage() {
@@ -42,7 +42,7 @@ export default function MediaPage() {
         <>
           {assets && assets.length > 0 ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {assets.map((asset: any) => (
+              {assets.map((asset: { id: string; file_name: string; file_size: number }) => (
                 <Card key={asset.id}>
                   <CardHeader className="p-4">
                     <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">

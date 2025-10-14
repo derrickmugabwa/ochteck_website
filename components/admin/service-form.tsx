@@ -101,7 +101,7 @@ export function ServiceForm({ service, onClose, onSuccess }: ServiceFormProps) {
       const filePath = `services/${fileName}`;
 
       // Upload to Supabase Storage
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from('media')
         .upload(filePath, file, {
           cacheControl: '3600',

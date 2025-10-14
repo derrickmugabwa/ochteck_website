@@ -57,7 +57,7 @@ interface AboutPageContentProps {
 
 // Helper to get icon component from string name
 const getIcon = (iconName: string): LucideIcon => {
-  const IconComponent = (Icons as any)[iconName];
+  const IconComponent = (Icons as unknown as Record<string, LucideIcon>)[iconName];
   return IconComponent || Sparkles;
 };
 

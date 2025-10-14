@@ -45,7 +45,6 @@ function NavLinkItem({ href, label }: { href: string; label: string }) {
 
 export function SiteNav() {
   const [navbarSettings, setNavbarSettings] = useState<NavbarSettings | null>(cachedNavbarSettings);
-  const [loading, setLoading] = useState(!cachedNavbarSettings);
 
   useEffect(() => {
     async function fetchNavbarSettings() {
@@ -53,7 +52,6 @@ export function SiteNav() {
       const now = Date.now();
       if (cachedNavbarSettings && (now - cacheTimestamp) < CACHE_DURATION) {
         setNavbarSettings(cachedNavbarSettings);
-        setLoading(false);
         return;
       }
 
@@ -69,7 +67,6 @@ export function SiteNav() {
         cacheTimestamp = Date.now();
         setNavbarSettings(data);
       }
-      setLoading(false);
     }
 
     fetchNavbarSettings();

@@ -10,15 +10,21 @@ import {
   Image, 
   Settings,
   Home,
-  Info
+  Info,
+  Building2,
+  Layers,
+  Mail
 } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/homepage", label: "Homepage", icon: Home },
   { href: "/admin/about", label: "About Page", icon: Info },
+  { href: "/admin/services-page", label: "Services Page", icon: Layers },
+  { href: "/admin/contact", label: "Contact Page", icon: Mail },
   { href: "/admin/pages", label: "Pages", icon: FileText },
   { href: "/admin/services", label: "Services", icon: Briefcase },
+  { href: "/admin/brands", label: "Brands", icon: Building2 },
   { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquare },
   { href: "/admin/media", label: "Media", icon: Image },
   { href: "/admin/settings", label: "Settings", icon: Settings },
