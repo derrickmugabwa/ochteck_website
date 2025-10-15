@@ -14,9 +14,10 @@ export default async function Home() {
   const supabase = await createClient();
 
   // Fetch homepage sections
-  const [featuresResult, servicesResult, ctaResult, brandsResult, brandsSectionResult, testimonialsResult] = await Promise.all([
+  const [featuresResult, servicesResult, servicesSectionResult, ctaResult, brandsResult, brandsSectionResult, testimonialsResult] = await Promise.all([
     supabase.from("homepage_features").select("*").eq("is_active", true).single(),
     supabase.from("services").select("*").eq("visible", true).order("order_index").limit(8),
+    supabase.from("homepage_services").select("*").eq("is_active", true).single(),
     supabase.from("homepage_cta").select("*").eq("is_active", true).single(),
     supabase.from("brands").select("*").eq("visible", true).order("order_index"),
     supabase.from("brands_section").select("*").eq("is_active", true).single(),
@@ -39,6 +40,7 @@ export default async function Home() {
         <HomepageSections
           features={featuresResult.data}
           services={servicesResult.data}
+          servicesSection={servicesSectionResult.data}
           cta={ctaResult.data}
           testimonialsSection={testimonialsResult.data}
         />

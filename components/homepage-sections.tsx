@@ -46,9 +46,16 @@ interface TestimonialsSectionData {
   section_description: string;
 }
 
+interface ServicesSectionData {
+  section_title: string;
+  section_heading: string;
+  section_description: string;
+}
+
 interface HomepageSectionsProps {
   features: FeaturesData | null;
   services: Service[] | null;
+  servicesSection: ServicesSectionData | null;
   cta: CtaData | null;
   testimonialsSection: TestimonialsSectionData | null;
 }
@@ -85,7 +92,7 @@ interface Testimonial {
   visible: boolean;
 }
 
-export function HomepageSections({ features, services, cta, testimonialsSection }: HomepageSectionsProps) {
+export function HomepageSections({ features, services, servicesSection, cta, testimonialsSection }: HomepageSectionsProps) {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
 
   useEffect(() => {
@@ -166,13 +173,13 @@ export function HomepageSections({ features, services, cta, testimonialsSection 
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-medium mb-6">
                 <Briefcase className="w-4 h-4 text-primary" />
-                Our Services
+                {servicesSection?.section_title || "Our Services"}
               </div>
               <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-                Everything You Need to Build & Scale
+                {servicesSection?.section_heading || "Everything You Need to Build & Scale"}
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                From design systems to data-driven web applications
+                {servicesSection?.section_description || "From design systems to data-driven web applications"}
               </p>
             </div>
           </AnimateIn>
