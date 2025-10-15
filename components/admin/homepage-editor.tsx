@@ -52,13 +52,22 @@ interface CtaData {
   is_active: boolean;
 }
 
+interface TestimonialsData {
+  id: string;
+  badge_text: string;
+  section_heading: string;
+  section_description: string;
+  is_active: boolean;
+}
+
 interface HomepageEditorProps {
   initialFeatures: FeaturesData[];
   initialServices: ServicesData[];
   initialCta: CtaData[];
+  initialTestimonials: TestimonialsData[];
 }
 
-export function HomepageEditor({ initialFeatures, initialServices, initialCta }: HomepageEditorProps) {
+export function HomepageEditor({ initialFeatures, initialServices, initialCta, initialTestimonials }: HomepageEditorProps) {
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
 
@@ -94,6 +103,17 @@ export function HomepageEditor({ initialFeatures, initialServices, initialCta }:
       description: "Let's build something amazing together",
       button_text: "Get Started",
       button_link: "/contact",
+      is_active: false,
+    }
+  );
+
+  // Testimonials state
+  const [testimonialsData, setTestimonialsData] = useState<TestimonialsData>(
+    initialTestimonials.find((t) => t.is_active) || initialTestimonials[0] || {
+      id: "",
+      badge_text: "Testimonials",
+      section_heading: "Loved by Innovative Teams",
+      section_description: "See what our clients say about working with us",
       is_active: false,
     }
   );
@@ -234,11 +254,52 @@ export function HomepageEditor({ initialFeatures, initialServices, initialCta }:
     setServicesData({ ...servicesData, services: newServices });
   };
 
+  const handleSaveTestimonials = async () => {
+    setIsSaving(true);
+    const supabase = createClient();
+
+    try {
+      if (testimonialsData.id) {
+        const { error } = await supabase
+          .from("homepage_testimonials_section")
+          .update({
+            badge_text: testimonialsData.badge_text,
+            section_heading: testimonialsData.section_heading,
+            section_description: testimonialsData.section_description,
+            is_active: testimonialsData.is_active,
+          })
+          .eq("id", testimonialsData.id);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("homepage_testimonials_section")
+          .insert([{
+            badge_text: testimonialsData.badge_text,
+            section_heading: testimonialsData.section_heading,
+            section_description: testimonialsData.section_description,
+            is_active: true,
+          }]);
+
+        if (error) throw error;
+      }
+
+      toast.success("Testimonials section saved successfully!");
+      router.refresh();
+    } catch (error) {
+      console.error("Error saving testimonials section:", error);
+      toast.error("Failed to save testimonials section");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <Tabs defaultValue="features" className="w-full">
-      <TabsList className="grid w-full grid-cols-3">
+      <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="features">Features</TabsTrigger>
         <TabsTrigger value="services">Services</TabsTrigger>
+        <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
         <TabsTrigger value="cta">CTA</TabsTrigger>
       </TabsList>
 
@@ -466,6 +527,73 @@ export function HomepageEditor({ initialFeatures, initialServices, initialCta }:
                 <>
                   <Save className="w-4 h-4 mr-2" />
                   Save Services Section
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {/* Testimonials Tab */}
+      <TabsContent value="testimonials">
+        <Card>
+          <CardHeader>
+            <CardTitle>Testimonials Section</CardTitle>
+            <CardDescription>Manage the testimonials section header</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="testimonials-badge">Badge Text</Label>
+              <Input
+                id="testimonials-badge"
+                value={testimonialsData.badge_text}
+                onChange={(e) => setTestimonialsData({ ...testimonialsData, badge_text: e.target.value })}
+                placeholder="Testimonials"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="testimonials-heading">Section Heading</Label>
+              <Input
+                id="testimonials-heading"
+                value={testimonialsData.section_heading}
+                onChange={(e) => setTestimonialsData({ ...testimonialsData, section_heading: e.target.value })}
+                placeholder="Loved by Innovative Teams"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="testimonials-description">Section Description</Label>
+              <Textarea
+                id="testimonials-description"
+                value={testimonialsData.section_description}
+                onChange={(e) => setTestimonialsData({ ...testimonialsData, section_description: e.target.value })}
+                placeholder="See what our clients say about working with us"
+                rows={3}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 rounded-lg border">
+              <div className="space-y-0.5">
+                <Label>Set as Active</Label>
+                <p className="text-xs text-muted-foreground">Display this version on homepage</p>
+              </div>
+              <Switch
+                checked={testimonialsData.is_active}
+                onCheckedChange={(checked) => setTestimonialsData({ ...testimonialsData, is_active: checked })}
+              />
+            </div>
+
+            <Button onClick={handleSaveTestimonials} disabled={isSaving} className="w-full">
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Testimonials Section
                 </>
               )}
             </Button>

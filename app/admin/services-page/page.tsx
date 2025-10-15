@@ -25,6 +25,18 @@ interface ServicesCTA {
   is_active: boolean;
 }
 
+interface ServicesPageHero {
+  id: string;
+  subtitle: string;
+  title: string;
+  description: string;
+  badge: string;
+  expertise_title: string;
+  expertise_intro: string;
+  expertise_description: string;
+  is_active: boolean;
+}
+
 export default function ServicesPageAdmin() {
   const [newStep, setNewStep] = useState<Partial<ProcessStep>>({
     step_number: "",
@@ -34,6 +46,7 @@ export default function ServicesPageAdmin() {
     visible: true,
   });
   const [ctaData, setCtaData] = useState<Partial<ServicesCTA>>({});
+  const [heroData, setHeroData] = useState<Partial<ServicesPageHero>>({});
   const queryClient = useQueryClient();
   const supabase = createClient();
 
@@ -50,6 +63,21 @@ export default function ServicesPageAdmin() {
     },
   });
 
+  // Fetch Hero
+  const { data: hero } = useQuery({
+    queryKey: ["services-page-hero"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("services_page_hero")
+        .select("*")
+        .eq("is_active", true)
+        .single();
+      if (error && error.code !== 'PGRST116') throw error;
+      if (data) setHeroData(data);
+      return data as ServicesPageHero | null;
+    },
+  });
+
   // Fetch CTA
   const { data: cta } = useQuery({
     queryKey: ["services-page-cta"],
@@ -62,6 +90,28 @@ export default function ServicesPageAdmin() {
       if (error && error.code !== 'PGRST116') throw error;
       if (data) setCtaData(data);
       return data as ServicesCTA | null;
+    },
+  });
+
+  // Save Hero mutation
+  const saveHeroMutation = useMutation({
+    mutationFn: async () => {
+      if (hero?.id) {
+        const { error } = await supabase
+          .from("services_page_hero")
+          .update(heroData)
+          .eq("id", hero.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("services_page_hero")
+          .insert([{ ...heroData, is_active: true }]);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["services-page-hero"] });
+      alert("Hero content saved successfully!");
     },
   });
 
@@ -148,9 +198,109 @@ export default function ServicesPageAdmin() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Services Page Content</h1>
         <p className="text-muted-foreground mt-2">
-          Manage process steps and call-to-action section
+          Manage hero section, process steps, and call-to-action
         </p>
       </div>
+
+      {/* Hero Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Hero Section</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Badge</label>
+              <input
+                type="text"
+                value={heroData.badge || ""}
+                onChange={(e) => setHeroData({ ...heroData, badge: e.target.value })}
+                className="w-full border rounded-lg px-4 py-2"
+                placeholder="What We Offer"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Subtitle</label>
+              <input
+                type="text"
+                value={heroData.subtitle || ""}
+                onChange={(e) => setHeroData({ ...heroData, subtitle: e.target.value })}
+                className="w-full border rounded-lg px-4 py-2"
+                placeholder="Our Services"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Title</label>
+            <input
+              type="text"
+              value={heroData.title || ""}
+              onChange={(e) => setHeroData({ ...heroData, title: e.target.value })}
+              className="w-full border rounded-lg px-4 py-2"
+              placeholder="Comprehensive Solutions for Modern Web"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Description</label>
+            <textarea
+              value={heroData.description || ""}
+              onChange={(e) => setHeroData({ ...heroData, description: e.target.value })}
+              className="w-full border rounded-lg px-4 py-2"
+              rows={3}
+              placeholder="From concept to deployment..."
+            />
+          </div>
+
+          <div className="border-t pt-4 mt-4">
+            <h3 className="font-semibold mb-4">Expertise Section</h3>
+            
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Section Title</label>
+                  <input
+                    type="text"
+                    value={heroData.expertise_title || ""}
+                    onChange={(e) => setHeroData({ ...heroData, expertise_title: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-2"
+                    placeholder="Our Expertise"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Section Intro</label>
+                  <input
+                    type="text"
+                    value={heroData.expertise_intro || ""}
+                    onChange={(e) => setHeroData({ ...heroData, expertise_intro: e.target.value })}
+                    className="w-full border rounded-lg px-4 py-2"
+                    placeholder="Full-stack development services"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Section Description</label>
+                <textarea
+                  value={heroData.expertise_description || ""}
+                  onChange={(e) => setHeroData({ ...heroData, expertise_description: e.target.value })}
+                  className="w-full border rounded-lg px-4 py-2"
+                  rows={2}
+                  placeholder="Our expertise spans the entire development lifecycle..."
+                />
+              </div>
+            </div>
+          </div>
+
+          <Button onClick={() => saveHeroMutation.mutate()}>
+            <Save className="w-4 h-4 mr-2" />
+            Save Hero Content
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* CTA Section */}
       <Card>

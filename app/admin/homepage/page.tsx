@@ -15,10 +15,11 @@ export default async function HomepageManagementPage() {
   }
 
   // Fetch all homepage sections
-  const [featuresResult, servicesResult, ctaResult] = await Promise.all([
+  const [featuresResult, servicesResult, ctaResult, testimonialsResult] = await Promise.all([
     supabase.from("homepage_features").select("*").order("created_at", { ascending: false }),
     supabase.from("homepage_services").select("*").order("created_at", { ascending: false }),
     supabase.from("homepage_cta").select("*").order("created_at", { ascending: false }),
+    supabase.from("homepage_testimonials_section").select("*").order("created_at", { ascending: false }),
   ]);
 
   return (
@@ -34,6 +35,7 @@ export default async function HomepageManagementPage() {
         initialFeatures={featuresResult.data || []}
         initialServices={servicesResult.data || []}
         initialCta={ctaResult.data || []}
+        initialTestimonials={testimonialsResult.data || []}
       />
     </div>
   );

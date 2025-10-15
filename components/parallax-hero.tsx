@@ -146,7 +146,7 @@ function ParallaxHeroContent({ heroContent }: { heroContent: HeroContent | null 
           </h1>
 
           {heroContent?.description && (
-            <p className="text-lg md:text-xl text-black max-w-3xl leading-relaxed">
+            <p className="text-lg md:text-xl text-white max-w-3xl leading-relaxed">
               {heroContent.description}
             </p>
           )}

@@ -27,7 +27,7 @@ export default async function HeroManagementPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Hero Management</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Homepage Content Management</h1>
         <p className="text-muted-foreground mt-2">
           Manage your homepage hero section content and background image
         </p>

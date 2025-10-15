@@ -36,12 +36,41 @@ interface Submission {
   created_at: string;
 }
 
+interface ContactPageHero {
+  id: string;
+  subtitle: string;
+  title: string;
+  description: string;
+  badge: string;
+  contact_info_title: string;
+  contact_info_intro: string;
+  faq_title: string;
+  faq_intro: string;
+  is_active: boolean;
+}
+
 export default function ContactAdminPage() {
-  const [activeTab, setActiveTab] = useState<"info" | "faqs" | "submissions">("info");
+  const [activeTab, setActiveTab] = useState<"hero" | "info" | "faqs" | "submissions">("hero");
   const [contactData, setContactData] = useState<Partial<ContactInfo>>({});
+  const [heroData, setHeroData] = useState<Partial<ContactPageHero>>({});
   const [newFaq, setNewFaq] = useState({ question: "", answer: "", order_index: 0 });
   const queryClient = useQueryClient();
   const supabase = createClient();
+
+  // Fetch hero content
+  const { data: hero } = useQuery({
+    queryKey: ["contact-page-hero"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contact_page_hero")
+        .select("*")
+        .eq("is_active", true)
+        .single();
+      if (error && error.code !== 'PGRST116') throw error;
+      if (data) setHeroData(data);
+      return data as ContactPageHero | null;
+    },
+  });
 
   // Fetch contact info
   const { data: contactInfo } = useQuery({
@@ -81,6 +110,28 @@ export default function ContactAdminPage() {
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Submission[];
+    },
+  });
+
+  // Save hero content
+  const saveHeroMutation = useMutation({
+    mutationFn: async () => {
+      if (hero?.id) {
+        const { error } = await supabase
+          .from("contact_page_hero")
+          .update(heroData)
+          .eq("id", hero.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("contact_page_hero")
+          .insert([{ ...heroData, is_active: true }]);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contact-page-hero"] });
+      alert("Hero content saved successfully!");
     },
   });
 
@@ -184,6 +235,16 @@ export default function ContactAdminPage() {
       {/* Tabs */}
       <div className="flex gap-2 border-b">
         <button
+          onClick={() => setActiveTab("hero")}
+          className={`px-4 py-2 font-medium transition-colors ${
+            activeTab === "hero"
+              ? "border-b-2 border-primary text-primary"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Hero Section
+        </button>
+        <button
           onClick={() => setActiveTab("info")}
           className={`px-4 py-2 font-medium transition-colors ${
             activeTab === "info"
@@ -219,6 +280,121 @@ export default function ContactAdminPage() {
           )}
         </button>
       </div>
+
+      {/* Hero Tab */}
+      {activeTab === "hero" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Hero Section</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Badge</label>
+                <input
+                  type="text"
+                  value={heroData.badge || ""}
+                  onChange={(e) => setHeroData({ ...heroData, badge: e.target.value })}
+                  className="w-full border rounded-lg px-4 py-2"
+                  placeholder="Get In Touch"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Subtitle</label>
+                <input
+                  type="text"
+                  value={heroData.subtitle || ""}
+                  onChange={(e) => setHeroData({ ...heroData, subtitle: e.target.value })}
+                  className="w-full border rounded-lg px-4 py-2"
+                  placeholder="Contact Us"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Title</label>
+              <input
+                type="text"
+                value={heroData.title || ""}
+                onChange={(e) => setHeroData({ ...heroData, title: e.target.value })}
+                className="w-full border rounded-lg px-4 py-2"
+                placeholder="Let's Build Something Amazing Together"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Description</label>
+              <textarea
+                value={heroData.description || ""}
+                onChange={(e) => setHeroData({ ...heroData, description: e.target.value })}
+                className="w-full border rounded-lg px-4 py-2"
+                rows={3}
+                placeholder="Have a project in mind?..."
+              />
+            </div>
+
+            <div className="border-t pt-4 mt-4">
+              <h3 className="font-semibold mb-4">Section Headers</h3>
+              
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Contact Info Title</label>
+                    <input
+                      type="text"
+                      value={heroData.contact_info_title || ""}
+                      onChange={(e) => setHeroData({ ...heroData, contact_info_title: e.target.value })}
+                      className="w-full border rounded-lg px-4 py-2"
+                      placeholder="Contact Information"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Contact Info Intro</label>
+                    <input
+                      type="text"
+                      value={heroData.contact_info_intro || ""}
+                      onChange={(e) => setHeroData({ ...heroData, contact_info_intro: e.target.value })}
+                      className="w-full border rounded-lg px-4 py-2"
+                      placeholder="Multiple ways to reach us"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">FAQ Section Title</label>
+                    <input
+                      type="text"
+                      value={heroData.faq_title || ""}
+                      onChange={(e) => setHeroData({ ...heroData, faq_title: e.target.value })}
+                      className="w-full border rounded-lg px-4 py-2"
+                      placeholder="Frequently Asked Questions"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">FAQ Section Intro</label>
+                    <input
+                      type="text"
+                      value={heroData.faq_intro || ""}
+                      onChange={(e) => setHeroData({ ...heroData, faq_intro: e.target.value })}
+                      className="w-full border rounded-lg px-4 py-2"
+                      placeholder="Quick answers to common questions"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Button onClick={() => saveHeroMutation.mutate()}>
+              <Save className="w-4 h-4 mr-2" />
+              Save Hero Content
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Contact Info Tab */}
       {activeTab === "info" && (

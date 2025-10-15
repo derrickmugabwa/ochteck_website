@@ -91,14 +91,14 @@ export function SiteNav() {
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2">
         {logoUrl && (
-          <div className="relative w-20 h-20">
+          <div className="relative w-28 h-28">
             <Image
               src={logoUrl}
               alt={logoText}
               fill
               className="object-contain"
               priority
-              sizes="80px"
+              sizes="112px"
               quality={90}
             />
           </div>

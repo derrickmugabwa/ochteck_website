@@ -14,12 +14,14 @@ export default async function ContactPage() {
   const supabase = await createClient();
 
   // Fetch contact page content
-  const [contactInfoResult, faqsResult, servicesResult] = await Promise.all([
+  const [heroResult, contactInfoResult, faqsResult, servicesResult] = await Promise.all([
+    supabase.from("contact_page_hero").select("*").eq("is_active", true).single(),
     supabase.from("contact_info").select("*").eq("is_active", true).single(),
     supabase.from("contact_faqs").select("*").eq("visible", true).order("order_index"),
     supabase.from("services").select("id, title").eq("visible", true).order("order_index"),
   ]);
 
+  const hero = heroResult.data;
   const contactInfo = contactInfoResult.data;
   const faqs = faqsResult.data || [];
   const services = servicesResult.data || [];
@@ -27,15 +29,18 @@ export default async function ContactPage() {
     <div className="flex flex-col">
       {/* Modern Hero Section */}
       <PageHero
-        subtitle="Contact Us"
-        title="Let's Build Something Amazing Together"
-        description="Have a project in mind? We'd love to hear about it. Fill out the form below or reach out directly, and we'll get back to you within 24 hours."
-        badge="Get In Touch"
+        subtitle={hero?.subtitle || "Contact Us"}
+        title={hero?.title || "Let's Build Something Amazing Together"}
+        description={hero?.description || "Have a project in mind? We'd love to hear about it. Fill out the form below or reach out directly, and we'll get back to you within 24 hours."}
+        badge={hero?.badge || "Get In Touch"}
         icon={<MessageSquare className="w-4 h-4 text-primary" />}
       />
 
       <div className="mx-auto w-full max-w-7xl px-5 py-20 flex flex-col gap-20">
-      <Section title="Contact Information" intro="Multiple ways to reach us">
+      <Section 
+        title={hero?.contact_info_title || "Contact Information"} 
+        intro={hero?.contact_info_intro || "Multiple ways to reach us"}
+      >
 
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Contact Form */}
@@ -130,7 +135,10 @@ export default async function ContactPage() {
 
       {/* FAQ Section - Modern Design */}
       {faqs.length > 0 && (
-        <Section title="Frequently Asked Questions" intro="Quick answers to common questions">
+        <Section 
+          title={hero?.faq_title || "Frequently Asked Questions"} 
+          intro={hero?.faq_intro || "Quick answers to common questions"}
+        >
           <div className="grid gap-6 md:grid-cols-2">
             {faqs.map((faq, i) => (
               <AnimateIn key={faq.id} delay={i * 0.08}>

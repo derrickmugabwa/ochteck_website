@@ -40,10 +40,17 @@ interface CtaData {
   button_link: string;
 }
 
+interface TestimonialsSectionData {
+  badge_text: string;
+  section_heading: string;
+  section_description: string;
+}
+
 interface HomepageSectionsProps {
   features: FeaturesData | null;
   services: Service[] | null;
   cta: CtaData | null;
+  testimonialsSection: TestimonialsSectionData | null;
 }
 
 // Helper to get icon component from string name
@@ -78,7 +85,7 @@ interface Testimonial {
   visible: boolean;
 }
 
-export function HomepageSections({ features, services, cta }: HomepageSectionsProps) {
+export function HomepageSections({ features, services, cta, testimonialsSection }: HomepageSectionsProps) {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
 
   useEffect(() => {
@@ -175,7 +182,7 @@ export function HomepageSections({ features, services, cta }: HomepageSectionsPr
               const IconComponent = getIcon(service.icon_name || 'Briefcase');
               return (
                 <AnimateIn key={service.id} delay={i * 0.08}>
-                  <div className="group rounded-2xl border bg-card overflow-hidden hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 h-full flex flex-col">
+                  <Link href="/services" className="group rounded-2xl border bg-card overflow-hidden hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 h-full flex flex-col">
                     {/* Image */}
                     <div className="relative h-48 overflow-hidden">
                       {service.image_path && (
@@ -203,7 +210,7 @@ export function HomepageSections({ features, services, cta }: HomepageSectionsPr
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 </AnimateIn>
               );
             })}
@@ -235,16 +242,20 @@ export function HomepageSections({ features, services, cta }: HomepageSectionsPr
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-medium mb-6">
                 <MessageSquare className="w-4 h-4 text-primary" />
-                Testimonials
+                {testimonialsSection?.badge_text || "Testimonials"}
               </div>
               <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-                Loved by{" "}
-                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Innovative Teams
-                </span>
+                {testimonialsSection?.section_heading || (
+                  <>
+                    Loved by{" "}
+                    <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                      Innovative Teams
+                    </span>
+                  </>
+                )}
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                See what our clients say about working with us
+                {testimonialsSection?.section_description || "See what our clients say about working with us"}
               </p>
             </div>
           </AnimateIn>

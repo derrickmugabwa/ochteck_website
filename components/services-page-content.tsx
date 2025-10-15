@@ -36,10 +36,21 @@ interface ServicesCTA {
   button_link: string;
 }
 
+interface ServicesPageHero {
+  subtitle: string;
+  title: string;
+  description: string;
+  badge: string;
+  expertise_title: string;
+  expertise_intro: string;
+  expertise_description: string;
+}
+
 interface ServicesPageContentProps {
   services: Service[];
   processSteps: ProcessStep[];
   cta: ServicesCTA | null;
+  hero: ServicesPageHero | null;
 }
 
 // Helper to get icon component from string name
@@ -49,25 +60,27 @@ const getIcon = (iconName?: string): LucideIcon => {
   return IconComponent || Briefcase;
 };
 
-export function ServicesPageContent({ services, processSteps, cta }: ServicesPageContentProps) {
+export function ServicesPageContent({ services, processSteps, cta, hero }: ServicesPageContentProps) {
   return (
     <>
       {/* Hero Section */}
       <PageHero
-        subtitle="Our Services"
-        title="Comprehensive Solutions for Modern Web"
-        description="From concept to deployment, we provide end-to-end web development services that combine cutting-edge technology with beautiful design."
-        badge="What We Offer"
+        subtitle={hero?.subtitle || "Our Services"}
+        title={hero?.title || "Comprehensive Solutions for Modern Web"}
+        description={hero?.description || "From concept to deployment, we provide end-to-end web development services that combine cutting-edge technology with beautiful design."}
+        badge={hero?.badge || "What We Offer"}
         icon={<Briefcase className="w-4 h-4 text-primary" />}
       />
 
       <div className="mx-auto w-full max-w-7xl px-5 py-20 flex flex-col gap-20">
         {/* Services Grid */}
-        <Section title="Our Expertise" intro="Full-stack development services">
+        <Section 
+          title={hero?.expertise_title || "Our Expertise"} 
+          intro={hero?.expertise_intro || "Full-stack development services"}
+        >
           <AnimateIn>
             <p className="text-lg text-muted-foreground max-w-3xl leading-relaxed mb-12">
-              Our expertise spans the entire development lifecycle, ensuring your project 
-              is built with the latest technologies and best practices.
+              {hero?.expertise_description || "Our expertise spans the entire development lifecycle, ensuring your project is built with the latest technologies and best practices."}
             </p>
           </AnimateIn>
 

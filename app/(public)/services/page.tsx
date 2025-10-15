@@ -10,10 +10,11 @@ export default async function ServicesPage() {
   const supabase = await createClient();
 
   // Fetch all services page content
-  const [servicesResult, processStepsResult, ctaResult] = await Promise.all([
+  const [servicesResult, processStepsResult, ctaResult, heroResult] = await Promise.all([
     supabase.from("services").select("*").eq("visible", true).order("order_index"),
     supabase.from("services_process_steps").select("*").eq("visible", true).order("order_index"),
     supabase.from("services_page_cta").select("*").eq("is_active", true).single(),
+    supabase.from("services_page_hero").select("*").eq("is_active", true).single(),
   ]);
 
   return (
@@ -21,6 +22,7 @@ export default async function ServicesPage() {
       services={servicesResult.data || []}
       processSteps={processStepsResult.data || []}
       cta={ctaResult.data}
+      hero={heroResult.data}
     />
   );
 }
