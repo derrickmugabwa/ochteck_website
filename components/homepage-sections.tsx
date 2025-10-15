@@ -243,6 +243,7 @@ export function HomepageSections({ features, services, servicesSection, cta, tes
           {/* Background decoration */}
           <div className="absolute inset-0 -z-10 overflow-hidden">
             <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
           </div>
 
           <AnimateIn>
@@ -270,31 +271,63 @@ export function HomepageSections({ features, services, servicesSection, cta, tes
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {testimonials.map((testimonial, i) => (
               <AnimateIn key={testimonial.id} delay={i * 0.08}>
-                <blockquote className="group relative rounded-2xl border bg-card p-8 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 h-full flex flex-col">
-                  {/* Quote icon */}
-                  <div className="mb-4 text-primary/20 text-6xl font-serif leading-none">&ldquo;</div>
+                <blockquote className="group relative rounded-3xl border bg-card/50 backdrop-blur-sm p-8 hover:bg-card hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/20 transition-all duration-500 h-full flex flex-col overflow-hidden">
+                  {/* Background gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   
-                  {/* Rating stars */}
-                  <div className="flex gap-1 mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Sparkles key={i} className="w-4 h-4 fill-primary text-primary" />
-                    ))}
+                  {/* Content wrapper */}
+                  <div className="relative z-10 flex flex-col h-full">
+                    {/* Quote icon */}
+                    <div className="mb-6 text-primary/30 text-7xl font-serif leading-none group-hover:text-primary/40 transition-colors">&ldquo;</div>
+                    
+                    {/* Rating stars */}
+                    <div className="flex gap-1 mb-6">
+                      {[...Array(5)].map((_, starIndex) => (
+                        <div 
+                          key={starIndex}
+                          className="relative"
+                          style={{ animationDelay: `${starIndex * 50}ms` }}
+                        >
+                          <Sparkles className="w-5 h-5 fill-primary/80 text-primary group-hover:scale-110 transition-transform duration-300" />
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Testimonial content */}
+                    <p className="text-base leading-relaxed mb-8 flex-1 text-foreground/90 group-hover:text-foreground transition-colors italic">
+                      &ldquo;{testimonial.content}&rdquo;
+                    </p>
+                    
+                    {/* Author info */}
+                    <footer className="flex items-center gap-4 pt-6 border-t border-border/50 group-hover:border-primary/20 transition-colors">
+                      <div className="relative">
+                        {/* Avatar with gradient border */}
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity blur-sm" />
+                        <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-pink-500/20 flex items-center justify-center font-bold text-lg text-primary group-hover:scale-105 transition-transform">
+                          {testimonial.author.split(' ').map((n: string) => n[0]).join('')}
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                          {testimonial.author}
+                        </div>
+                        <div className="text-sm text-muted-foreground mt-0.5">
+                          {testimonial.role}
+                        </div>
+                        {testimonial.company && (
+                          <div className="text-xs text-muted-foreground/70 mt-0.5">
+                            {testimonial.company}
+                          </div>
+                        )}
+                      </div>
+                    </footer>
                   </div>
 
-                  <p className="text-base leading-relaxed mb-6 flex-1">{testimonial.content}</p>
+                  {/* Decorative gradient bar - now more prominent */}
+                  <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-t-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
-                  <footer className="flex items-center gap-4 pt-4 border-t">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-pink-500/20 flex items-center justify-center font-bold text-primary">
-                      {testimonial.author.split(' ').map((n: string) => n[0]).join('')}
-                    </div>
-                    <div>
-                      <div className="font-semibold">{testimonial.author}</div>
-                      <div className="text-sm text-muted-foreground">{testimonial.role}</div>
-                    </div>
-                  </footer>
-
-                  {/* Decorative gradient */}
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                  {/* Corner accent */}
+                  <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-primary/10 to-transparent rounded-tl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 </blockquote>
               </AnimateIn>
             ))}
