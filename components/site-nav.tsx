@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Image from "next/image";
+import { Menu, X } from "lucide-react";
 
 interface NavLink {
   label: string;
@@ -45,6 +46,7 @@ function NavLinkItem({ href, label }: { href: string; label: string }) {
 
 export function SiteNav() {
   const [navbarSettings, setNavbarSettings] = useState<NavbarSettings | null>(cachedNavbarSettings);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     async function fetchNavbarSettings() {
@@ -108,8 +110,8 @@ export function SiteNav() {
         )}
       </Link>
 
-      {/* Navigation Links */}
-      <div className="flex items-center gap-2">
+      {/* Desktop Navigation Links */}
+      <div className="hidden md:flex items-center gap-2">
         {navLinks.map((link) => (
           <NavLinkItem key={link.href} href={link.href} label={link.label} />
         ))}
@@ -124,6 +126,44 @@ export function SiteNav() {
           </Link>
         )}
       </div>
+
+      {/* Mobile Menu Toggle */}
+      <button
+        className="md:hidden p-2 rounded-md hover:bg-accent transition-colors"
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        aria-label="Toggle menu"
+      >
+        {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      {/* Mobile Navigation Menu */}
+      {mobileMenuOpen && (
+        <div className="absolute top-16 left-0 right-0 bg-background border-b shadow-lg md:hidden z-50">
+          <div className="flex flex-col p-4 space-y-2">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="px-3 py-2 rounded-md text-sm font-medium hover:bg-accent transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
+            
+            {/* Mobile CTA Button */}
+            {showCta && ctaText && ctaLink && (
+              <Link
+                href={ctaLink}
+                className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity text-center"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {ctaText}
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
