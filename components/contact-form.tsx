@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Send, Loader2, CheckCircle } from "lucide-react";
+import { submitContactForm } from "@/app/actions/contact";
 
 interface Service {
   id: string;
@@ -30,18 +31,10 @@ export function ContactForm({ services }: ContactFormProps) {
     setErrorMessage("");
 
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const result = await submitContactForm(formData);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to submit form");
+      if (!result.success) {
+        throw new Error(result.message);
       }
 
       setSubmitStatus("success");
