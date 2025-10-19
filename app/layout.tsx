@@ -11,38 +11,31 @@ const defaultUrl = process.env.VERCEL_URL
   : "http://localhost:3000";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const supabase = await createClient();
-  const { data: settings } = await supabase
-    .from("site_settings")
-    .select("site_name, favicon_url")
-    .eq("is_active", true)
-    .single();
-
-  // Build icons object - use absolute URLs for external favicons
-  const faviconUrl = settings?.favicon_url;
-  const isExternalUrl = faviconUrl?.startsWith('http');
+  let settings = null;
   
-  const icons: Metadata['icons'] = faviconUrl && isExternalUrl
-    ? {
-        icon: [
-          { url: faviconUrl, type: 'image/x-icon' },
-          { url: faviconUrl, sizes: '32x32', type: 'image/png' },
-          { url: faviconUrl, sizes: '16x16', type: 'image/png' },
-        ],
-        shortcut: faviconUrl,
-        apple: faviconUrl,
-      }
-    : {
-        icon: '/favicon.ico',
-        shortcut: '/favicon.ico',
-        apple: '/favicon.ico',
-      };
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("site_name, favicon_url")
+      .eq("is_active", true)
+      .single();
+    
+    if (!error && data) {
+      settings = data;
+      console.log('Favicon URL from DB:', data.favicon_url); // Debug log
+    } else {
+      console.error('Error fetching site settings:', error);
+    }
+  } catch (error) {
+    console.error('Exception fetching site settings for metadata:', error);
+  }
 
   return {
     metadataBase: new URL(defaultUrl),
     title: settings?.site_name || "Ochteck Agency Limited",
     description: "Professional web development and digital solutions",
-    icons,
+    // Icons are handled by app/icon.tsx which dynamically serves the custom favicon
   };
 }
 
