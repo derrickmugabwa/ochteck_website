@@ -18,15 +18,31 @@ export async function generateMetadata(): Promise<Metadata> {
     .eq("is_active", true)
     .single();
 
+  // Build icons object - use absolute URLs for external favicons
+  const faviconUrl = settings?.favicon_url;
+  const isExternalUrl = faviconUrl?.startsWith('http');
+  
+  const icons: Metadata['icons'] = faviconUrl && isExternalUrl
+    ? {
+        icon: [
+          { url: faviconUrl, type: 'image/x-icon' },
+          { url: faviconUrl, sizes: '32x32', type: 'image/png' },
+          { url: faviconUrl, sizes: '16x16', type: 'image/png' },
+        ],
+        shortcut: faviconUrl,
+        apple: faviconUrl,
+      }
+    : {
+        icon: '/favicon.ico',
+        shortcut: '/favicon.ico',
+        apple: '/favicon.ico',
+      };
+
   return {
     metadataBase: new URL(defaultUrl),
     title: settings?.site_name || "Ochteck Agency Limited",
     description: "Professional web development and digital solutions",
-    icons: settings?.favicon_url ? {
-      icon: settings.favicon_url,
-      shortcut: settings.favicon_url,
-      apple: settings.favicon_url,
-    } : undefined,
+    icons,
   };
 }
 
