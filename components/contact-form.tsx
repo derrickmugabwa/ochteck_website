@@ -59,23 +59,23 @@ export function ContactForm({ services }: ContactFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-xl border bg-card p-8 shadow-sm">
+    <form onSubmit={handleSubmit} className="rounded-xl border bg-card p-4 sm:p-6 md:p-8 shadow-sm">
       {submitStatus === "success" && (
-        <div className="mb-6 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4 flex items-center gap-3">
-          <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
-          <p className="text-sm text-green-800 dark:text-green-200">
+        <div className="mb-4 sm:mb-6 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-3 sm:p-4 flex items-start sm:items-center gap-2 sm:gap-3">
+          <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5 sm:mt-0" />
+          <p className="text-xs sm:text-sm text-green-800 dark:text-green-200">
             Thank you for your message! We&apos;ll get back to you soon.
           </p>
         </div>
       )}
 
       {submitStatus === "error" && (
-        <div className="mb-6 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4">
-          <p className="text-sm text-red-800 dark:text-red-200">{errorMessage}</p>
+        <div className="mb-4 sm:mb-6 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 sm:p-4">
+          <p className="text-xs sm:text-sm text-red-800 dark:text-red-200">{errorMessage}</p>
         </div>
       )}
 
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 sm:grid-cols-2">
         <div className="space-y-2">
           <label className="text-sm font-medium" htmlFor="name">
             Full Name *
@@ -88,7 +88,7 @@ export function ContactForm({ services }: ContactFormProps) {
             placeholder="John Doe"
             required
             disabled={isSubmitting}
-            className="w-full border rounded-lg px-4 py-3 bg-background focus:outline-none focus:ring-2 focus:ring-primary transition disabled:opacity-50"
+            className="w-full border rounded-lg px-3 py-2.5 sm:px-4 sm:py-3 bg-background focus:outline-none focus:ring-2 focus:ring-primary transition disabled:opacity-50 text-sm sm:text-base"
           />
         </div>
         <div className="space-y-2">
@@ -104,12 +104,12 @@ export function ContactForm({ services }: ContactFormProps) {
             placeholder="john@example.com"
             required
             disabled={isSubmitting}
-            className="w-full border rounded-lg px-4 py-3 bg-background focus:outline-none focus:ring-2 focus:ring-primary transition disabled:opacity-50"
+            className="w-full border rounded-lg px-3 py-2.5 sm:px-4 sm:py-3 bg-background focus:outline-none focus:ring-2 focus:ring-primary transition disabled:opacity-50 text-sm sm:text-base"
           />
         </div>
       </div>
 
-      <div className="mt-6 space-y-2">
+      <div className="mt-4 sm:mt-6 space-y-2">
         <label className="text-sm font-medium" htmlFor="service">
           Service Interest
         </label>
@@ -119,7 +119,7 @@ export function ContactForm({ services }: ContactFormProps) {
           value={formData.service}
           onChange={(e) => setFormData({ ...formData, service: e.target.value })}
           disabled={isSubmitting}
-          className="w-full border rounded-lg px-4 py-3 bg-background focus:outline-none focus:ring-2 focus:ring-primary transition disabled:opacity-50"
+          className="w-full border rounded-lg px-3 py-2.5 sm:px-4 sm:py-3 bg-background focus:outline-none focus:ring-2 focus:ring-primary transition disabled:opacity-50 text-sm sm:text-base"
         >
           <option value="">Select a service</option>
           {services.map((service) => (
@@ -131,7 +131,7 @@ export function ContactForm({ services }: ContactFormProps) {
         </select>
       </div>
 
-      <div className="mt-6 space-y-2">
+      <div className="mt-4 sm:mt-6 space-y-2">
         <label className="text-sm font-medium" htmlFor="message">
           Message *
         </label>
@@ -142,16 +142,16 @@ export function ContactForm({ services }: ContactFormProps) {
           onChange={(e) => setFormData({ ...formData, message: e.target.value })}
           placeholder="Tell us about your project..."
           required
-          rows={6}
+          rows={5}
           disabled={isSubmitting}
-          className="w-full border rounded-lg px-4 py-3 bg-background focus:outline-none focus:ring-2 focus:ring-primary transition resize-none disabled:opacity-50"
+          className="w-full border rounded-lg px-3 py-2.5 sm:px-4 sm:py-3 bg-background focus:outline-none focus:ring-2 focus:ring-primary transition resize-none disabled:opacity-50 text-sm sm:text-base"
         />
       </div>
 
       <button
         type="submit"
         disabled={isSubmitting}
-        className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-primary-foreground font-medium hover:opacity-90 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+        className="mt-4 sm:mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 sm:px-6 sm:py-3 text-primary-foreground font-medium hover:opacity-90 transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-sm sm:text-base"
       >
         {isSubmitting ? (
           <>

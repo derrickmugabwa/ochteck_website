@@ -13,7 +13,8 @@ import {
   Info,
   Building2,
   Layers,
-  Mail
+  Mail,
+  Shield
 } from "lucide-react";
 
 const navItems = [
@@ -22,6 +23,7 @@ const navItems = [
   { href: "/admin/about", label: "About Page", icon: Info },
   { href: "/admin/services-page", label: "Services Page", icon: Layers },
   { href: "/admin/contact", label: "Contact Page", icon: Mail },
+  { href: "/admin/policies", label: "Policies Page", icon: Shield },
   { href: "/admin/pages", label: "Pages", icon: FileText },
   { href: "/admin/services", label: "Services", icon: Briefcase },
   { href: "/admin/brands", label: "Brands", icon: Building2 },

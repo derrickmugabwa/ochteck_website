@@ -36,28 +36,28 @@ export default async function ContactPage() {
         icon={<MessageSquare className="w-4 h-4 text-primary" />}
       />
 
-      <div className="mx-auto w-full max-w-7xl px-5 py-20 flex flex-col gap-20">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-5 py-12 sm:py-20 flex flex-col gap-12 sm:gap-20">
       <Section 
         title={hero?.contact_info_title || "Contact Information"} 
         intro={hero?.contact_info_intro || "Multiple ways to reach us"}
       >
 
-        <div className="grid gap-8 lg:grid-cols-3">
+        <div className="grid gap-6 sm:gap-8 lg:grid-cols-3">
           {/* Contact Form */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 order-2 lg:order-1">
             <AnimateIn delay={0.1}>
               <ContactForm services={services} />
             </AnimateIn>
           </div>
 
           {/* Contact Info */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6 order-1 lg:order-2">
             {contactInfo && (
               <>
                 <AnimateIn delay={0.2}>
-                  <div className="rounded-xl border bg-card p-6 shadow-sm">
-                    <h3 className="font-semibold text-lg mb-4">Contact Information</h3>
-                    <div className="space-y-4">
+                  <div className="rounded-xl border bg-card p-4 sm:p-6 shadow-sm">
+                    <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">Contact Information</h3>
+                    <div className="space-y-3 sm:space-y-4">
                       {contactInfo.email && (
                         <div className="flex items-start gap-3">
                           <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
@@ -119,9 +119,9 @@ export default async function ContactPage() {
 
                 {contactInfo.response_time_text && (
                   <AnimateIn delay={0.3}>
-                    <div className="rounded-xl border bg-gradient-to-br from-primary/5 to-purple-500/5 p-6">
-                      <h3 className="font-semibold text-lg mb-2">Quick Response</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
+                    <div className="rounded-xl border bg-gradient-to-br from-primary/5 to-purple-500/5 p-4 sm:p-6">
+                      <h3 className="font-semibold text-base sm:text-lg mb-2">Quick Response</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                         {contactInfo.response_time_text}
                       </p>
                     </div>
@@ -139,21 +139,21 @@ export default async function ContactPage() {
           title={hero?.faq_title || "Frequently Asked Questions"} 
           intro={hero?.faq_intro || "Quick answers to common questions"}
         >
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
             {faqs.map((faq, i) => (
               <AnimateIn key={faq.id} delay={i * 0.08}>
-                <div className="group relative rounded-2xl border bg-gradient-to-br from-card to-card/50 p-6 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 hover:-translate-y-1">
+                <div className="group relative rounded-2xl border bg-gradient-to-br from-card to-card/50 p-5 sm:p-6 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 hover:-translate-y-1">
                   {/* Icon */}
-                  <div className="absolute -top-3 -left-3 w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                    <HelpCircle className="w-6 h-6 text-primary-foreground" />
+                  <div className="absolute -top-2 -left-2 sm:-top-3 sm:-left-3 w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                    <HelpCircle className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
                   </div>
                   
                   {/* Content */}
-                  <div className="mt-4">
-                    <h3 className="font-bold text-lg mb-3 group-hover:text-primary transition-colors">
+                  <div className="mt-3 sm:mt-4">
+                    <h3 className="font-bold text-base sm:text-lg mb-2 sm:mb-3 group-hover:text-primary transition-colors pr-2">
                       {faq.question}
                     </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                       {faq.answer}
                     </p>
                   </div>

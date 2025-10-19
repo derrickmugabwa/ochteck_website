@@ -23,11 +23,6 @@ interface NavbarSettings {
   show_cta_button: boolean;
 }
 
-// Cache navbar settings in memory
-let cachedNavbarSettings: NavbarSettings | null = null;
-let cacheTimestamp: number = 0;
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-
 function NavLinkItem({ href, label }: { href: string; label: string }) {
   const pathname = usePathname();
   const active = pathname === href;
@@ -44,19 +39,23 @@ function NavLinkItem({ href, label }: { href: string; label: string }) {
   );
 }
 
-export function SiteNav() {
-  const [navbarSettings, setNavbarSettings] = useState<NavbarSettings | null>(cachedNavbarSettings);
+interface SiteNavProps {
+  initialSettings?: NavbarSettings | null;
+}
+
+export function SiteNav({ initialSettings }: SiteNavProps) {
+  const [navbarSettings, setNavbarSettings] = useState<NavbarSettings | null>(initialSettings || null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    async function fetchNavbarSettings() {
-      // Check if cache is still valid
-      const now = Date.now();
-      if (cachedNavbarSettings && (now - cacheTimestamp) < CACHE_DURATION) {
-        setNavbarSettings(cachedNavbarSettings);
-        return;
-      }
+    // If we have initial settings from server, use them
+    if (initialSettings) {
+      setNavbarSettings(initialSettings);
+      return;
+    }
 
+    // Otherwise fetch on client (fallback)
+    async function fetchNavbarSettings() {
       const supabase = createClient();
       const { data, error } = await supabase
         .from("navbar_settings")
@@ -65,14 +64,12 @@ export function SiteNav() {
         .single();
 
       if (!error && data) {
-        cachedNavbarSettings = data;
-        cacheTimestamp = Date.now();
         setNavbarSettings(data);
       }
     }
 
     fetchNavbarSettings();
-  }, []);
+  }, [initialSettings]);
 
   // Fallback to default while loading or if no settings
   const logoText = navbarSettings?.logo_text || "Brand";
